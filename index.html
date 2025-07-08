@@ -40,38 +40,23 @@
             color: #666;
             word-break: break-word;
         }
-        
-        .loading {
-            text-align: center;
-            font-size: 18px;
-            color: #666;
-            margin: 50px 0;
-        }
-        
-        .error {
-            color: #dc3545;
-            text-align: center;
-            margin: 20px 0;
-            font-size: 16px;
-        }
     </style>
 </head>
 <body>
-    <div id="loading" class="loading">Loading images...</div>
-    <div id="errorMessage" class="error" style="display: none;"></div>
     <div id="gallery" class="gallery"></div>
 
     <script>
-        // Generate potential image filenames
-        function generateImageList() {
-            const images = [];
-            // Adjust the range based on how many images you might have
-            for (let i = 1; i <= 200; i++) {
-                const paddedNumber = i.toString().padStart(4, '0');
-                images.push(`image_${paddedNumber}.png`);
-            }
-            return images;
-        }
+        // List your actual image filenames here
+        // Replace this array with the actual names of your image files
+        const imageList = [
+            'image_1.png',
+            'image_2.png',
+            'image_3.png',
+            'image_4.png',
+            'image_5.png',
+            // Add more image filenames as needed
+            // You can check your images folder and list all the files here
+        ];
         
         // Fisher-Yates shuffle algorithm
         function shuffleArray(array) {
@@ -83,63 +68,25 @@
             return shuffled;
         }
         
-        async function checkImageExists(imagePath) {
-            try {
-                const response = await fetch(imagePath, { method: 'HEAD' });
-                return response.ok;
-            } catch (error) {
-                return false;
-            }
-        }
-        
-        async function loadImages() {
+        function displayImages() {
             const gallery = document.getElementById('gallery');
-            const loading = document.getElementById('loading');
-            const errorMessage = document.getElementById('errorMessage');
-            
-            // Find all existing images
-            const potentialImages = generateImageList();
-            const existingImages = [];
-            
-            // Check which images actually exist
-            for (let i = 0; i < potentialImages.length; i++) {
-                const imageName = potentialImages[i];
-                const imagePath = `images/${imageName}`;
-                
-                if (await checkImageExists(imagePath)) {
-                    existingImages.push({ name: imageName, path: imagePath });
-                }
-                
-                // Update progress
-                if (i % 10 === 0) {
-                    loading.textContent = `Loading images... ${i + 1}/${potentialImages.length}`;
-                }
-            }
-            
-            loading.style.display = 'none';
-            
-            if (existingImages.length === 0) {
-                errorMessage.textContent = 'No images found in the images folder matching the pattern image_*.png';
-                errorMessage.style.display = 'block';
-                return;
-            }
             
             // Shuffle the images randomly
-            const shuffledImages = shuffleArray(existingImages);
+            const shuffledImages = shuffleArray(imageList);
             
             // Display all images in random order
-            shuffledImages.forEach((imageObj) => {
+            shuffledImages.forEach((imageName) => {
                 const container = document.createElement('div');
                 container.className = 'image-container';
                 
                 const img = document.createElement('img');
-                img.src = imageObj.path;
-                img.alt = imageObj.name;
+                img.src = `images/${imageName}`;
+                img.alt = imageName;
                 img.loading = 'lazy';
                 
                 const nameDiv = document.createElement('div');
                 nameDiv.className = 'image-name';
-                nameDiv.textContent = imageObj.name;
+                nameDiv.textContent = imageName;
                 
                 container.appendChild(img);
                 container.appendChild(nameDiv);
@@ -147,13 +94,15 @@
                 
                 // Handle image load errors
                 img.onerror = function() {
-                    container.style.display = 'none';
+                    console.log(`Failed to load: ${imageName}`);
+                    container.style.opacity = '0.5';
+                    nameDiv.textContent = `${imageName} (not found)`;
                 };
             });
         }
         
         // Load images when the page loads
-        window.onload = loadImages;
+        window.onload = displayImages;
     </script>
 </body>
 </html>
