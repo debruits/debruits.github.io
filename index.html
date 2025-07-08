@@ -46,16 +46,40 @@
     <div id="gallery" class="gallery"></div>
 
     <script>
-        // List your actual image filenames here
-        // Replace this array with the actual names of your image files
+        // Your image filenames
         const imageList = [
             'images/image_1.png',
             'images/image_2.png',
             'images/image_3.png',
             'images/image_4.png',
+            'images/image_5.png',
             'images/image_6.png',
-            // Add more image filenames as needed
-            // You can check your images folder and list all the files here
+            'images/image_7.png',
+            'images/image_8.png',
+            'images/image_9.png',
+            'images/image_10.png',
+            'images/image_11.png',
+            'images/image_12.png',
+            'images/image_13.png',
+            'images/image_14.png',
+            'images/image_15.png',
+            'images/image_16.png',
+            'images/image_17.png',
+            'images/image_18.png',
+            'images/image_19.png',
+            'images/image_20.png',
+            'images/image_21.png',
+            'images/image_22.png',
+            'images/image_23.png',
+            'images/image_24.png',
+            'images/image_25.png',
+            'images/image_26.png',
+            'images/image_27.png',
+            'images/image_28.png',
+            'images/image_29.png',
+            'images/image_30.png',
+            'images/image_31.png',
+            'images/image_32.png'
         ];
         
         // Fisher-Yates shuffle algorithm
@@ -80,7 +104,7 @@
                 container.className = 'image-container';
                 
                 const img = document.createElement('img');
-                img.src = `images/${imageName}`;
+                img.src = imageName;
                 img.alt = imageName;
                 img.loading = 'lazy';
                 
