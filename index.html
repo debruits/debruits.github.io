@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Image Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .image-container {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .image-name {
+            font-size: 14px;
+            color: #666;
+            word-break: break-word;
+        }
+        
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+            margin: 50px 0;
+        }
+        
+        .error {
+            color: #dc3545;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">Loading images...</div>
+    <div id="errorMessage" class="error" style="display: none;"></div>
+    <div id="gallery" class="gallery"></div>
+
+    <script>
+        // Generate potential image filenames
+        function generateImageList() {
+            const images = [];
+            // Adjust the range based on how many images you might have
+            for (let i = 1; i <= 200; i++) {
+                const paddedNumber = i.toString().padStart(4, '0');
+                images.push(`image_${paddedNumber}.png`);
+            }
+            return images;
+        }
+        
+        // Fisher-Yates shuffle algorithm
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+        
+        async function checkImageExists(imagePath) {
+            try {
+                const response = await fetch(imagePath, { method: 'HEAD' });
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+        
+        async function loadImages() {
+            const gallery = document.getElementById('gallery');
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Find all existing images
+            const potentialImages = generateImageList();
+            const existingImages = [];
+            
+            // Check which images actually exist
+            for (let i = 0; i < potentialImages.length; i++) {
+                const imageName = potentialImages[i];
+                const imagePath = `images/${imageName}`;
+                
+                if (await checkImageExists(imagePath)) {
+                    existingImages.push({ name: imageName, path: imagePath });
+                }
+                
+                // Update progress
+                if (i % 10 === 0) {
+                    loading.textContent = `Loading images... ${i + 1}/${potentialImages.length}`;
+                }
+            }
+            
+            loading.style.display = 'none';
+            
+            if (existingImages.length === 0) {
+                errorMessage.textContent = 'No images found in the images folder matching the pattern image_*.png';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Shuffle the images randomly
+            const shuffledImages = shuffleArray(existingImages);
+            
+            // Display all images in random order
+            shuffledImages.forEach((imageObj) => {
+                const container = document.createElement('div');
+                container.className = 'image-container';
+                
+                const img = document.createElement('img');
+                img.src = imageObj.path;
+                img.alt = imageObj.name;
+                img.loading = 'lazy';
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'image-name';
+                nameDiv.textContent = imageObj.name;
+                
+                container.appendChild(img);
+                container.appendChild(nameDiv);
+                gallery.appendChild(container);
+                
+                // Handle image load errors
+                img.onerror = function() {
+                    container.style.display = 'none';
+                };
+            });
+        }
+        
+        // Load images when the page loads
+        window.onload = loadImages;
+    </script>
+</body>
+</html>
